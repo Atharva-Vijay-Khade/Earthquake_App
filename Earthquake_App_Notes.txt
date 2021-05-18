@@ -1,0 +1,85 @@
+
+Earthquake App in flutter 
+
+1] Setup google maps 
+    - got to pub.dev and take google maps flutter package
+    - install by setting up the dependencies in pubspec.yaml
+    - to to google cloud platform for maps and go to console 
+    - select google maps sdk for android 
+    - click on enable 
+    - go to credentials and create create credentials
+    - get the api key
+    - go to package docs and set up the andoid manifest 
+    - set up the metadata for the package and paste the api key
+    - this is the setup for android 
+    - for ios, setup the AppDelegate.swift file by code given in doc
+    - paste the api key there
+    - key terms
+                - meta data -> data that give info on other data
+                - androidManifest file: heart of flutter application
+                  it glues multiple things in app together to work
+    
+----- AndroidX error : androidX is used to solved the problem of backward
+compatibility, meaning if our app is using new features which older android 
+versions may not support, then the app might crash, to solve this issue AndroidX
+is used, this is common error in android development
+----- '_' preceded varibales in flutter are private variables 
+
+// Creating the usable Earthquake widget
+
+class Earthquake extends StatefulWidget {
+  @override
+  _EarthquakeState createState() => _EarthquakeState();
+}
+
+class _EarthquakeState extends State<Earthquake> {
+
+  GoogleMapController googleMapController;   // this has the controller to the map widget 
+
+  final LatLng _center = const LatLng(45.521563, -122.677433);  // LatLng object to setup initial camera position
+
+  void _onMapCreated(GoogleMapController controller) { // function to setup the map controller
+    googleMapController = controller;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Earthquake"),
+      ),
+      body: GoogleMap(          // this widget creates the google map widget 
+        onMapCreated: _onMapCreated,     // this calls the onmapcreate function and passes the controller which is then setup
+        initialCameraPosition: CameraPosition(target: _center,zoom: 11.0), // setting the initial camera position
+      ),
+    );
+  }
+}
+
+----- imp on androidX error if faced
+      - go to the link mentioned in the error
+      - open the android folder of the app you are currently working on [open in android studio]
+      - syn the files if error then sync with file menue
+      - follow suggestions given by the studio if error occur
+      - then migrate the app 
+      - then if still error then take scripts as shown in lectures [ copy past the error on google and github refer to the github link]
+      - manage the versions [they might have changed]
+      - save the scripts in the build.gradle follow others steps in the github post 
+      - IMP = how to check if our emulator has google play services or not ? 
+            -  open AVD manager and which ever emulator has the google play symbol indicate it has the google 
+               play services in it
+      - if we want the emulator with the google services in it then create a new emulator which has that support
+- Some times if the app doesn't work on ide then rebuild the application 
+  -- try commands like flutter clear flutter build etc
+   
+2] Map features 
+- mapType: MapType.[type]  by this we can select the map type that we want, terrain, satellite, hybrid etc
+- now to add a marker on the location which we want, we use the marker: property which takes a set of marker 
+as the value ie: marker:{ portland, , , , , } Marker portland created below 
+
+= Marker portlandMarker = Marker(
+    markerId: MarkerId("Portland"),   // this is just an id for the marker 
+    position: place the LatLng object here, // this is the location of the marker 
+    infoWindow: infoWindow(title:"Portland",snippet: Additional text shown here!),  // this is the information[will be shown:when taped on marker] about the marker
+    icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.[which ever we want]); // this is icon shown on marker
+);
