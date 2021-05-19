@@ -83,3 +83,95 @@ as the value ie: marker:{ portland, , , , , } Marker portland created below
     infoWindow: infoWindow(title:"Portland",snippet: Additional text shown here!),  // this is the information[will be shown:when taped on marker] about the marker
     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.[which ever we want]); // this is icon shown on marker
 );
+
+- to get lat lang coordinates we can go to google maps and just check the url of that location
+
+About GoogleMapController
+- Controller for a single GoogleMap instance running on the host platform.
+- when we have to create a new contorller mainly to animate and move the camera position 
+around the map then we have to use await and async function to initialize the new 
+googleMapController controller with the controller which was assigned when the map was 
+created 
+
+syntax : 
+// its a function which returns nothing in future
+Future<void> _gotoLoc() async {
+  GoogleMapController contorller = await MapContoroller;
+  contorller.animateCamera(CameraUpdate.newCameraPosition(newloc));  // this newloc is the object of type CameraPosition initialized using CameraPosition constructor
+}
+//CameraPosition newloc = CameraPosition(lat,lang)
+= we call the above function whene we want to shift to the location, call it on the onpressed property
+
+// we can also remove the async and await, still it works :)
+ void _gotoIntel()  {
+  GoogleMapController controller = googleMapController;
+  controller.animateCamera(CameraUpdate.newCameraPosition(intelLoc));
+}  !!!!! Doubt on this ,this is happening?????
+
+// inside CameraPosition constructor we can also pass the tilt and the bearing property 
+so that during animations the bearing will rotate the view and tilt will lower the angel of view
+
+
+
+---------------------------------------------------------------------------------------
+
+Starting with the App
+
+1] https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson 
+api link to fetch the earth quake data
+2] In the chrome extension, download json viewer pro to view the json files more clearly
+3] now we conver the the json object to dart object, which is usable class, called as PODO
+plain old dart object  link for it -> https://javiercbk.github.io/json_to_dart/
+4] whenever we convert the jason to dart object class then some types in the json 
+are not known, or ambigious to dart , that we need to resolve, so use a helper function to 
+resolve, ie field: 10   type of this 10 is not konwn so it's ambigious, 
+        ie  field: null null type is not known, so we use helper function here
+5] This helper class is also useful in other situations when we are using the json to dart 
+when we want we use this helper class to avoid ambigious datatypes in the application
+
+Setting Up the network class 
+
+import 'dart:convert';
+
+
+import 'package:earthquake_app/Model/model.dart';
+import 'package:http/http.dart' as https;
+
+class Network {
+
+  static Future<Quakes> getQuakes() async {
+
+    var quakeUrl = "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_day.geojson";
+
+    var response = await https.get(Uri.https("earthquake.usgs.gov","earthquakes/feed/v1.0/summary/2.5_day.geojson"));
+
+    if(response.statusCode == 200)
+    {
+      print(response.body);
+      return Quakes.fromJson(json.decode(response.body));
+    }
+    else{
+      throw Exception("error occurred");
+    }
+  }
+}
+
+we calls this static method inside the init state method, and assigne them to the future object 
+as shown below 
+
+Future<Quakes> _earthQuakes;
+
+    @override
+    void initState() { 
+      super.initState();
+      _earthQuakes = Network.getQuakes();
+      _earthQuakes.then((values)=>{
+        print("Place: ${values.features[1].geometry.coordinates[0]}" )
+      });
+    }
+// using .then method we can check the values received from the json
+
+-> VVVVVImp  - Using the TypesHelper class convert the int and doubles and the nulls to 
+appropriate types so that there won't be any unhandled exceptions 
+
+=> go throught the networking and PODO lectures once, VVVVVImp
