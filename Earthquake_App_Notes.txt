@@ -175,3 +175,166 @@ Future<Quakes> _earthQuakes;
 appropriate types so that there won't be any unhandled exceptions 
 
 => go throught the networking and PODO lectures once, VVVVVImp
+
+
+Completer in flutter -> A completer is a class/way to produce future objects and 
+complete them at later time, when we have the data, with error or with valid value
+- here we are creating the future from scratch
+- Reserch more on this 
+- difference between future constructor and completer
+-> completer in dart is the class whose object can be assigned a value or error in future
+ie:  Future<String> fun() {            // by this we avoid writing await and async
+      Completer c = new Completer();
+      String name = get this from some api say;
+      c.complete(name);             // we got string from api or say we had it already, then we assign the complter the value of that string 
+      return c.future;             // using c.complete(name) then c.future gives what's value is there in completer, it can be assigned only once 
+}
+
+// we can iterate through the json payload convertet in PODO
+by using the .then method and set state to add data in markers 
+
+// when we want to add zoom in and zoom out buttons 
+
+-  we first have to get hold of the contoller 
+-  use a async funtion 
+    GoogleMapContorller controller = await _completer.future;
+    then we animate the camera
+    onPressed: ()async{
+            _zoomVal++;
+            // now update the camera 
+            GoogleMapController controller = await _completer.future;
+            controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+              target: LatLng(1,2),
+              zoom: _zoomVal,
+              )));
+            print("hello");
+          },
+- Learnt new widget Align here, we can can align widgets using it on the screen
+
+- Proper Zoom level corrected in zoomIn and zoomOut functions 
+
+Widget _zoomIn() {
+    return Padding(
+      padding: const EdgeInsets.only(top:30),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: IconButton(
+          icon: Icon(Icons.zoom_in_outlined),
+          iconSize: 50,
+          color: Colors.white,
+          onPressed: ()async{
+            // now update the camera 
+            GoogleMapController controller = await _completer.future;
+            _zoomVal = await controller.getZoomLevel();
+            _zoomVal++;
+            LatLng curLoc =  await controller.getLatLng(ScreenCoordinate(x: (MediaQuery.of(context).size.width*MediaQuery.of(context).devicePixelRatio/2).toInt(), y: (MediaQuery.of(context).size.height*MediaQuery.of(context).devicePixelRatio/2).toInt()));
+            controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+              target: curLoc,
+              zoom: _zoomVal,
+              )));
+            print("hello");
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _zoomOut() {
+    return Padding(
+      padding: const EdgeInsets.only(top:30),
+      child: Align(
+        alignment: Alignment.topRight,
+        child: IconButton(
+          icon: Icon(Icons.zoom_out_outlined),
+          iconSize: 50,
+          color: Colors.white,
+          onPressed: ()async{
+            // now update the camera 
+            GoogleMapController controller = await _completer.future;
+            _zoomVal = await controller.getZoomLevel();
+            _zoomVal--;
+            LatLng curLoc =  await controller.getLatLng(ScreenCoordinate(x: (MediaQuery.of(context).size.width*MediaQuery.of(context).devicePixelRatio/2).toInt(), y: (MediaQuery.of(context).size.height*MediaQuery.of(context).devicePixelRatio/2).toInt()));
+            controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+              target: curLoc,
+              zoom: _zoomVal,
+              )));
+            print("hello");
+          },
+        ),
+      ),
+    );
+  }
+
+ // initial map learning setup 
+ // GoogleMapController
+//       googleMapController; // this has the controller to the map widget
+
+//   static final LatLng _center = const LatLng(
+//       45.521563, -122.677433); // LatLng object to setup initial camera position
+//   static final LatLng _anotherLoc = const LatLng(
+//       45.505025, -122.670187); // another location picked up from google maps
+
+// void _onMapCreated(GoogleMapController controller) {
+//     // function to setup the map controller
+//     googleMapController = controller;
+//   }
+
+//   Marker portlandMarker = Marker(
+//     markerId: MarkerId("Portland"), // gives marker the id
+//     position: _center, // to be used as position the _center should be static
+//     infoWindow: InfoWindow(
+//         title: "Portland", snippet: "City in Oregon"), // info abt marker
+//     icon: BitmapDescriptor.defaultMarkerWithHue(
+//         BitmapDescriptor.hueAzure), // pointing location icon
+//   );
+
+//   Marker portlandMarker2 = Marker(
+//     markerId: MarkerId("Portland2"),
+//     infoWindow:
+//         InfoWindow(title: "Portland Area", snippet: "Another area in portland"),
+//     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
+//     position: _anotherLoc,
+//   );
+
+//   CameraPosition intelLoc = CameraPosition(
+//     target: LatLng(18.9644331,73.0193293),
+//     tilt: 90,
+//     bearing: 191,
+//     zoom: 16,
+//   );
+
+//   void _gotoIntel()  {
+//     GoogleMapController controller = googleMapController;
+//     controller.animateCamera(CameraUpdate.newCameraPosition(intelLoc));
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text("Earthquake"),
+//       ),
+//       body: GoogleMap(
+//         // this widget creates the google map widget
+//         mapType: MapType.hybrid,
+//         markers: {portlandMarker, portlandMarker2},
+//         onMapCreated:
+//             _onMapCreated, // this calls the onmapcreate function and passes the controller which is then setup
+//         initialCameraPosition: CameraPosition(
+//             target: _center, zoom: 11.0), // setting the initial camera position
+//       ),
+//       floatingActionButton: FloatingActionButton.extended(
+//         icon: Icon(Icons.business_center),
+//         onPressed: _gotoIntel,
+//         label: Text("Intel Corp!"),
+//       ),
+
+// imp - ~/ this division is more efficient than / this division
+
+-----------------------------------------------------------------------------------
+
+-> Next Target on google maps
+1] Revise this project
+2] Build 1-2 more apps on google maps with extra features
+
+-----------------------------------------------------------------------------------

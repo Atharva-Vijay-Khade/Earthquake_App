@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:earthquake_app/Model/model.dart';
 import 'package:earthquake_app/Network/network.dart';
 import 'package:flutter/material.dart';
@@ -15,18 +17,21 @@ class Earthquake extends StatefulWidget {
 }
 
 class _EarthquakeState extends State<Earthquake> {
+  Future<Quakes> _earthQuakes;
 
-    Future<Quakes> _earthQuakes;
+  // this completer gets value in future forom the googlemapcontorller
+  // given by the onmapcreated property
+  Completer<GoogleMapController> _completer = Completer();
 
+  List<Marker> _markers = [];
 
-    @override
-    void initState() { 
-      super.initState();
-      _earthQuakes = Network.getQuakes();
-      _earthQuakes.then((values)=>{
-        print("Place: ${values.features[1].geometry.coordinates[0]}" )
-      });
-    }
+  double _zoomVal = 5.0; // default
+
+  @override
+  void initState() {
+    super.initState();
+    _earthQuakes = Network.getQuakes();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,80 +39,139 @@ class _EarthquakeState extends State<Earthquake> {
       body: Stack(
         children: <Widget>[
           _buildGoogleMap(context),
+          _zoomIn(),
+          _zoomOut(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 70),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: FloatingActionButton.extended(
+                onPressed: () {
+                  showEarthQuakes(context);
+                },
+                label: Text("Show EarthQuakes"),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildGoogleMap(BuildContext context) {
-      return Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.width,
-        // child: GoogleMap(
-        //   initialCameraPosition: initialCameraPosition),
-      );
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height,
+      child: GoogleMap(
+        mapType: MapType.hybrid,
+        onMapCreated: (GoogleMapController controller) {
+          _completer.complete(controller);
+        },
+        initialCameraPosition: CameraPosition(
+          target: LatLng(45.50484936132229, -122.6751553073942),
+          zoom: 1,
+        ),
+        markers: _markers.toSet(),
+      ),
+    );
+  }
+
+  showEarthQuakes(BuildContext context) {
+    setState(() {
+      _markers.clear();
+      setUpMarkers();
+    });
+  }
+
+  void setUpMarkers() {
+    setState(() {
+      _earthQuakes.then((quakes) => {
+            quakes.features.forEach((element) {
+              _markers.add(
+                Marker(
+                  onTap: () {},
+                  markerId: MarkerId(element.id),
+                  position: LatLng(element.geometry.coordinates[1],
+                      element.geometry.coordinates[0]),
+                  infoWindow: InfoWindow(
+                      title: "Magnitude: ${element.properties.mag.toString()}",
+                      snippet: element.properties.place),
+                  icon: BitmapDescriptor.defaultMarkerWithHue(
+                      BitmapDescriptor.hueCyan),
+                ),
+              );
+            })
+          });
+    });
+  }
+
+  Widget _zoomIn() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: Align(
+        alignment: Alignment.topLeft,
+        child: IconButton(
+          icon: Icon(Icons.zoom_in_outlined),
+          iconSize: 50,
+          color: Colors.white,
+          onPressed: () async {
+            // now update the camera
+            GoogleMapController controller = await _completer.future;
+            _zoomVal = await controller.getZoomLevel();
+            _zoomVal++;
+            LatLng curLoc = await controller.getLatLng(
+              ScreenCoordinate(
+                x: (MediaQuery.of(context).size.width *
+                        MediaQuery.of(context).devicePixelRatio ~/
+                        2)
+                    .toInt(),
+                y: MediaQuery.of(context).size.height *
+                    MediaQuery.of(context).devicePixelRatio ~/
+                    2,
+              ),
+            );
+            controller
+                .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+              target: curLoc,
+              zoom: _zoomVal,
+            )));
+            print("hello");
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _zoomOut() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 30),
+      child: Align(
+        alignment: Alignment.topRight,
+        child: IconButton(
+          icon: Icon(Icons.zoom_out_outlined),
+          iconSize: 50,
+          color: Colors.white,
+          onPressed: () async {
+            // now update the camera
+            GoogleMapController controller = await _completer.future;
+            _zoomVal = await controller.getZoomLevel();
+            _zoomVal--;
+            LatLng curLoc = await controller.getLatLng(ScreenCoordinate(
+                x: MediaQuery.of(context).size.width *
+                    MediaQuery.of(context).devicePixelRatio ~/
+                    2,
+                y: MediaQuery.of(context).size.height *
+                    MediaQuery.of(context).devicePixelRatio ~/
+                    2));
+            controller
+                .animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
+              target: curLoc,
+              zoom: _zoomVal,
+            )));
+            print("hello");
+          },
+        ),
+      ),
+    );
   }
 }
-
-// GoogleMapController
-//       googleMapController; // this has the controller to the map widget
-
-//   static final LatLng _center = const LatLng(
-//       45.521563, -122.677433); // LatLng object to setup initial camera position
-//   static final LatLng _anotherLoc = const LatLng(
-//       45.505025, -122.670187); // another location picked up from google maps
-
-// void _onMapCreated(GoogleMapController controller) {
-//     // function to setup the map controller
-//     googleMapController = controller;
-//   }
-
-//   Marker portlandMarker = Marker(
-//     markerId: MarkerId("Portland"), // gives marker the id
-//     position: _center, // to be used as position the _center should be static
-//     infoWindow: InfoWindow(
-//         title: "Portland", snippet: "City in Oregon"), // info abt marker
-//     icon: BitmapDescriptor.defaultMarkerWithHue(
-//         BitmapDescriptor.hueAzure), // pointing location icon
-//   );
-
-//   Marker portlandMarker2 = Marker(
-//     markerId: MarkerId("Portland2"),
-//     infoWindow:
-//         InfoWindow(title: "Portland Area", snippet: "Another area in portland"),
-//     icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueCyan),
-//     position: _anotherLoc,
-//   );
-
-//   CameraPosition intelLoc = CameraPosition(
-//     target: LatLng(18.9644331,73.0193293),
-//     tilt: 90,
-//     bearing: 191,
-//     zoom: 16,
-//   );
-
-//   void _gotoIntel()  {
-//     GoogleMapController controller = googleMapController;
-//     controller.animateCamera(CameraUpdate.newCameraPosition(intelLoc));
-//   }
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text("Earthquake"),
-//       ),
-//       body: GoogleMap(
-//         // this widget creates the google map widget
-//         mapType: MapType.hybrid,
-//         markers: {portlandMarker, portlandMarker2},
-//         onMapCreated:
-//             _onMapCreated, // this calls the onmapcreate function and passes the controller which is then setup
-//         initialCameraPosition: CameraPosition(
-//             target: _center, zoom: 11.0), // setting the initial camera position
-//       ),
-//       floatingActionButton: FloatingActionButton.extended(
-//         icon: Icon(Icons.business_center),
-//         onPressed: _gotoIntel,
-//         label: Text("Intel Corp!"),
-//       ),
