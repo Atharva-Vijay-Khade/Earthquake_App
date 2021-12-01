@@ -1,16 +1,14 @@
-# earthquake_app
+# Earthquake_app
 
-A new Flutter project.
+-> Main aim of the application is to show the places all over the world where earthquake has happened
 
-## Getting Started
+-> It also shows the magnitude of the earthquake
 
-This project is a starting point for a Flutter application.
+## Screenshots
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<p>
+<img src="https://user-images.githubusercontent.com/58695354/144167878-d3bef46d-a8bf-4f9f-9f73-888f80f7534b.jpeg"
+ alt="Register Login Screen" width="200">
+<img src="https://user-images.githubusercontent.com/58695354/144167927-a61d9d25-4e1e-4aed-abc2-08893756c060.jpeg"
+ alt="Register Screen" width="200">
+</p>
